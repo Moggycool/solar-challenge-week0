@@ -1,2 +1,4 @@
 Myenv
 data
+*.csv
+*.ipynb_checkpoints
