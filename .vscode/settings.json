@@ -1,0 +1,7 @@
+{
+    "editor.fontSize": 14,
+    "python.defaultInterpreterPath": "D:\\Python\\Week_01\\Myenv\\Scripts\\python.exe",
+    "editor.formatOnSave": true,
+    "files.autoSave": "afterDelay",
+    "terminal.integrated.defaultProfile.windows": "Command Prompt"
+}
