@@ -24,7 +24,7 @@ except ImportError:
 def summary_statistics(df: pd.DataFrame) -> None:
     """Print summary statistics and missing values."""
     print_section_header("SUMMARY STATISTICS")
-    print(df.describe(include="all", datetime_is_numeric=True))
+    print(df.describe())
     print("\nMissing values:")
     print(df.isna().sum())
 
