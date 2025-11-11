@@ -1,54 +1,34 @@
 """
-data_loader.py
----------------
-Module for loading solar datasets from the local 'data/data' folder.
+data_loader.py — Functions to load solar datasets from the workspace data folder.
 """
 
 from pathlib import Path
 import pandas as pd
 
-# Set your base data folder
-BASE_DATA_DIR = Path(r"D:\Python\Week_01\data\data")
+# Base directory where raw CSV files are stored
+BASE_DATA_DIR = Path(
+    r"D:\Python\Week_01\Assignment\solar-challenge-week0\data")
 
 
-def load_data(country):
+def load_country_data(filename: str) -> pd.DataFrame:
     """
-    Loads a country's solar dataset (Togo, Sierra Leone, or Benin) from CSV.
+    Load a CSV dataset from the base data directory.
 
-    Args:
-        country (str): One of ["togo", "sierraleone", "benin"]
+    Parameters
+    ----------
+    filename : str
+        Name of the CSV file to load (e.g., "benin-malanville.csv").
 
-    Returns:
-        pd.DataFrame: Loaded dataset.
+    Returns
+    -------
+    pd.DataFrame
+        Loaded dataset as a pandas DataFrame.
     """
-    country = country.lower()
-    file_map = {
-        "togo": "togo-dapaong_qc.csv",
-        "sierraleone": "sierraleone-bumbuna.csv",
-        "benin": "benin-malanville.csv"
-    }
-
-    if country not in file_map:
-        raise ValueError(
-            f"Invalid country name: {country}. Choose from {list(file_map.keys())}")
-
-    file_path = BASE_DATA_DIR / file_map[country]
-
+    file_path = BASE_DATA_DIR / filename
     if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
+        raise FileNotFoundError(f"Dataset file not found: {file_path}")
 
-    print(f"📂 Loading dataset for {country.title()} from {file_path}")
     df = pd.read_csv(file_path)
-    df.columns = df.columns.str.strip()  # Clean column names
+    # Strip leading/trailing spaces from column names
+    df.columns = df.columns.str.strip()
     return df
-
-
-def save_data(df, country, suffix="_clean"):
-    """
-    Saves a cleaned dataset to the same folder with a suffix.
-    Example: benin_clean.csv
-    """
-    output_name = f"{country.lower()}{suffix}.csv"
-    output_path = BASE_DATA_DIR / output_name
-    df.to_csv(output_path, index=False)
-    print(f"✅ Data saved to {output_path}")
