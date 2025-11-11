@@ -26,7 +26,7 @@ def fill_missing_values(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     for col in cols:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors="coerce")
-            df[col].fillna(df[col].median(), inplace=True)
+            df[col].fillna(df[col].median())
     return df
 
 
