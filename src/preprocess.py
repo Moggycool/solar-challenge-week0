@@ -21,12 +21,28 @@ def standardize_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def fill_missing_values(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
-    """Fill missing values in numeric columns with median."""
+    """
+    Fill missing values in numeric columns with the median.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input DataFrame.
+    cols : list[str]
+        List of columns to fill missing values for.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with missing values filled.
+    """
     df = df.copy()
     for col in cols:
         if col in df.columns:
+            # Ensure column is numeric
             df[col] = pd.to_numeric(df[col], errors="coerce")
-            df[col].fillna(df[col].median())
+            # Fill missing values with median safely
+            df[col] = df[col].fillna(df[col].median())
     return df
 
 
