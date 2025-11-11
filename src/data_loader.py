@@ -4,8 +4,8 @@ data_loader.py
 Module for loading solar datasets from the local 'data/data' folder.
 """
 
-import pandas as pd
 from pathlib import Path
+import pandas as pd
 
 # Set your base data folder
 BASE_DATA_DIR = Path(r"D:\Python\Week_01\data\data")
