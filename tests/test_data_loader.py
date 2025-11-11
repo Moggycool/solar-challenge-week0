@@ -10,7 +10,7 @@ from src import data_loader
 from src.data_loader import load_country_data
 
 
-def test_load_country_data(tmp_path) -> None:
+def test_load_country_data(tmp_path: str) -> None:
     """
     Test that load_country_data correctly loads a CSV from the specified directory,
     strips column names, and returns a DataFrame.
