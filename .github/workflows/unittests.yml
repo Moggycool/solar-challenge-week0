@@ -25,4 +25,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run unit tests
-        run: pytest
+        # Ensure Python can find the 'src' package
+        run: |
+          export PYTHONPATH="${{ github.workspace }}/src"
+          pytest -v
