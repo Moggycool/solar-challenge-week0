@@ -5,6 +5,9 @@ Module for cleaning and preprocessing solar datasets.
 """
 
 
+import pandas as pd
+
+
 def clean_column_names(df):
     """
     Standardizes column names: lowercase, underscores, no spaces.
@@ -54,4 +57,31 @@ def remove_outliers(df, cols, factor=1.5):
             lower_bound = q1 - factor * iqr
             upper_bound = q3 + factor * iqr
             df = df[(df[col] >= lower_bound) & (df[col] <= upper_bound)]
+    return df
+
+
+"""
+cleaning.py — Functions for cleaning solar datasets.
+"""
+
+
+def fill_missing_values(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+    """Fill missing values in numeric columns with median."""
+    df = df.copy()
+    for col in cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+            df[col].fillna(df[col].median(), inplace=True)
+    return df
+
+
+def remove_outliers_zscore(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+    """Replace outliers (|Z| > 3) with median."""
+    df = df.copy()
+    for col in cols:
+        if col in df.columns:
+            mean = df[col].mean()
+            std = df[col].std()
+            z_scores = (df[col] - mean) / std
+            df.loc[z_scores.abs() > 3, col] = df[col].median()
     return df
