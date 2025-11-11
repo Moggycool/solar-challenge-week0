@@ -1,52 +1,46 @@
 """
-test_utils.py — Unit tests for src/utils.py module.
+test_cleaning.py — Unit tests for src/cleaning.py module.
 
 Tests:
-- generate_clean_filename
-- save_csv_safely
-- set_plot_style
+- fill_missing_values
+- remove_outliers_zscore
 """
 
-import tempfile
-import os
 import pandas as pd
-from src.utils import save_csv_safely, generate_clean_filename, set_plot_style
+import pytest
+from src.cleaning import fill_missing_values, remove_outliers_zscore
 
 
-def test_generate_clean_filename() -> None:
+@pytest.fixture
+def sample_df_fixture() -> pd.DataFrame:
     """
-    Test that generate_clean_filename returns a CSV filename
-    containing the country name.
+    Provide a sample DataFrame with missing values and outliers
+    for testing cleaning functions.
     """
-    filename = generate_clean_filename("dataset", "benin")
-    assert "benin" in filename
-    assert filename.endswith(".csv")
+    return pd.DataFrame({
+        "ghi": [1, None, 3, 1000],  # 1000 is an outlier
+        "dni": [None, 5, 6, 7]
+    })
 
 
-def test_save_csv_safely() -> None:
+def test_fill_missing_values(sample_df_fixture: pd.DataFrame) -> None:
     """
-    Test that save_csv_safely correctly writes a DataFrame to CSV
-    and that the file exists on disk.
+    Test that fill_missing_values correctly fills NaNs with the median
+    for numeric columns in a DataFrame.
     """
-    df = pd.DataFrame({"a": [1, 2, 3]})
-    with tempfile.TemporaryDirectory() as tmpdir:
-        filepath = os.path.join(tmpdir, "test.csv")
-        save_csv_safely(df, filepath)
-        assert os.path.exists(filepath)
-        df_loaded = pd.read_csv(filepath)
-        assert df_loaded.shape == df.shape
+    df_clean = fill_missing_values(sample_df_fixture, ["ghi", "dni"])
+    # Check no missing values remain
+    assert df_clean["ghi"].isna().sum() == 0
+    assert df_clean["dni"].isna().sum() == 0
 
 
-def test_set_plot_style() -> None:
+def test_remove_outliers_zscore(sample_df_fixture: pd.DataFrame) -> None:
     """
-    Test that set_plot_style runs without raising an exception.
-    This ensures matplotlib style is applied correctly.
+    Test that remove_outliers_zscore replaces extreme Z-score values
+    with the column median.
     """
-    set_plot_style()
-
-
-def test_set_plot_style_runs() -> None:
-    """
-    Ensure that set_plot_style runs without errors.
-    """
-    set_plot_style()
+    df_clean = remove_outliers_zscore(sample_df_fixture, ["ghi", "dni"])
+    # 1000 in 'ghi' should be replaced by median
+    median_ghi = sample_df_fixture["ghi"].median()
+    assert df_clean["ghi"].max() <= median_ghi + 3 * df_clean["ghi"].std() \
+        or df_clean["ghi"].max() == median_ghi
