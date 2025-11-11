@@ -38,17 +38,20 @@ jobs:
         shell: bash
 
       # -----------------------------
-      # Run pytest with PYTHONPATH
+      # Run tests with PYTHONPATH
       # -----------------------------
       - name: Run tests
+        shell: bash
         run: |
-          if [ $RUNNER_OS == "Windows" ]; then
+          echo "Setting PYTHONPATH to include src for module imports..."
+          if [ "$RUNNER_OS" = "Windows" ]; then
             # Windows PowerShell
             $env:PYTHONPATH="${GITHUB_WORKSPACE}\src"
+            echo "PYTHONPATH set to $env:PYTHONPATH"
             pytest -v
           else
-            # Linux / macOS bash
+            # Linux / macOS
             export PYTHONPATH="${GITHUB_WORKSPACE}/src"
+            echo "PYTHONPATH set to $PYTHONPATH"
             pytest -v
           fi
-        shell: bash
