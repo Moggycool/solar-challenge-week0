@@ -60,11 +60,6 @@ def remove_outliers(df, cols, factor=1.5):
     return df
 
 
-"""
-cleaning.py — Functions for cleaning solar datasets.
-"""
-
-
 def fill_missing_values(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     """Fill missing values in numeric columns with median."""
     df = df.copy()
