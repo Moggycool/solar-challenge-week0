@@ -4,22 +4,23 @@ cleaning.py
 Module for cleaning and preprocessing solar datasets.
 """
 
-
 import pandas as pd
 
 
-def clean_column_names(df):
+def clean_column_names(df: pd.DataFrame) -> pd.DataFrame:
     """
     Standardizes column names: lowercase, underscores, no spaces.
     """
+    df = df.copy()
     df.columns = df.columns.str.strip().str.lower().str.replace(' ', '_')
     return df
 
 
-def remove_duplicates(df):
+def remove_duplicates(df: pd.DataFrame) -> pd.DataFrame:
     """
     Removes duplicate rows, if any.
     """
+    df = df.copy()
     before = len(df)
     df = df.drop_duplicates()
     after = len(df)
@@ -27,20 +28,22 @@ def remove_duplicates(df):
     return df
 
 
-def handle_missing(df):
+def handle_missing(df: pd.DataFrame) -> pd.DataFrame:
     """
     Fills missing numeric values with median and categorical with mode.
     """
+    df = df.copy()
     for col in df.columns:
         if df[col].dtype == 'O':  # object / categorical
-            df[col].fillna(df[col].mode()[0] if not df[col].mode(
-            ).empty else "Unknown", inplace=True)
+            mode_val = df[col].mode(
+            )[0] if not df[col].mode().empty else "Unknown"
+            df[col] = df[col].fillna(mode_val)
         else:
-            df[col].fillna(df[col].median(), inplace=True)
+            df[col] = df[col].fillna(df[col].median())
     return df
 
 
-def remove_outliers(df, cols, factor=1.5):
+def remove_outliers(df: pd.DataFrame, cols: list[str], factor: float = 1.5) -> pd.DataFrame:
     """
     Removes outliers using the IQR (Interquartile Range) method.
 
@@ -49,6 +52,7 @@ def remove_outliers(df, cols, factor=1.5):
         cols: list of column names to check for outliers
         factor: IQR multiplier (default=1.5)
     """
+    df = df.copy()
     for col in cols:
         if df[col].dtype != 'O':
             q1 = df[col].quantile(0.25)
@@ -61,22 +65,26 @@ def remove_outliers(df, cols, factor=1.5):
 
 
 def fill_missing_values(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
-    """Fill missing values in numeric columns with median."""
-    df = df.copy()
+    """
+    Fill missing values in numeric columns with median (future-proof, no inplace warning).
+    """
+    df_filled = df.copy()
     for col in cols:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors="coerce")
-            df[col].fillna(df[col].median(), inplace=True)
-    return df
+        if col in df_filled.columns:
+            df_filled[col] = pd.to_numeric(df_filled[col], errors="coerce")
+            df_filled[col] = df_filled[col].fillna(df_filled[col].median())
+    return df_filled
 
 
 def remove_outliers_zscore(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
-    """Replace outliers (|Z| > 3) with median."""
-    df = df.copy()
+    """
+    Replace outliers (|Z| > 3) with median (future-proof, avoids inplace warnings).
+    """
+    df_clean = df.copy()
     for col in cols:
-        if col in df.columns:
-            mean = df[col].mean()
-            std = df[col].std()
-            z_scores = (df[col] - mean) / std
-            df.loc[z_scores.abs() > 3, col] = df[col].median()
-    return df
+        if col in df_clean.columns:
+            mean = df_clean[col].mean()
+            std = df_clean[col].std()
+            z_scores = (df_clean[col] - mean) / std
+            df_clean.loc[z_scores.abs() > 3, col] = df_clean[col].median()
+    return df_clean
