@@ -126,11 +126,11 @@ def save_plot(filename: str, folder: str = "plots") -> None:
 # ---------------------------------------------------------------------
 # 5️⃣ Utility for consistent naming
 # ---------------------------------------------------------------------
-def generate_clean_filename(base_name: str, country: str, suffix: str = "clean") -> str:
-    """Generate a consistent filename for output files."""
-    country = country.lower().replace(" ", "_")
-    file_name = f"{base_name}_{country}_{suffix}.csv"
-    return os.path.join("data", file_name)
+def generate_clean_filename(prefix: str, country: str) -> str:
+    if prefix:
+        return f"data/{prefix}_{country}_clean.csv"
+    else:
+        return f"data/{country}_clean.csv"
 
 
 # ---------------------------------------------------------------------

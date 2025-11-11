@@ -68,7 +68,7 @@ def preprocess_dataset(df: pd.DataFrame, country: str) -> pd.DataFrame:
     df = remove_outliers_zscore(df, key_cols)
 
     # Save cleaned dataset
-    out_file = generate_clean_filename("dataset", country)
+    out_file = generate_clean_filename("", country)
     save_csv_safely(df, out_file)
 
     return df
