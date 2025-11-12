@@ -2,13 +2,20 @@ name: CI
 
 on:
   push:
-    branches: [main, setup-task]
+    branches: [main]
   pull_request:
     branches: [main]
 
 jobs:
-  build:
-    runs-on: windows-latest
+  test:
+    # -----------------------------
+    # Test across multiple OSes and Python versions
+    # -----------------------------
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.10", "3.11"]
 
     steps:
       # -----------------------------
@@ -18,12 +25,12 @@ jobs:
         uses: actions/checkout@v4
 
       # -----------------------------
-      # Set up Python 3.11
+      # Set up Python
       # -----------------------------
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
 
       # -----------------------------
       # Install dependencies
@@ -32,15 +39,20 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-        shell: pwsh
+          pip install pytest pytest-cov
 
       # -----------------------------
-      # Run tests with PYTHONPATH
+      # Run tests with coverage
       # -----------------------------
       - name: Run tests
-        shell: pwsh
         run: |
-          Write-Host "Setting PYTHONPATH to include src for module imports..."
-          $env:PYTHONPATH="${GITHUB_WORKSPACE}\src"
-          Write-Host "PYTHONPATH set to $env:PYTHONPATH"
-          pytest -v
+          echo "Setting PYTHONPATH to include src for module imports..."
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            setx PYTHONPATH "%GITHUB_WORKSPACE%\\src"
+            echo "PYTHONPATH set to %GITHUB_WORKSPACE%\\src"
+          else
+            export PYTHONPATH="${GITHUB_WORKSPACE}/src"
+            echo "PYTHONPATH set to $PYTHONPATH"
+          fi
+
+          pytest -v --maxfail=1 --disable-warnings --cov=src --cov-report=term-missing
