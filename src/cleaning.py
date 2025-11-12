@@ -83,8 +83,20 @@ def remove_outliers_zscore(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     df_clean = df.copy()
     for col in cols:
         if col in df_clean.columns:
-            mean = df_clean[col].mean()
-            std = df_clean[col].std()
-            z_scores = (df_clean[col] - mean) / std
-            df_clean.loc[z_scores.abs() > 3, col] = df_clean[col].median()
+            # Convert to numeric and drop NaN for Z-score calculation
+            numeric_series = pd.to_numeric(df_clean[col], errors='coerce')
+
+            # Calculate mean and std only on non-NaN values
+            non_null_values = numeric_series.dropna()
+            if len(non_null_values) > 0:  # Only process if we have valid values
+                mean = non_null_values.mean()
+                std = non_null_values.std()
+
+                # Avoid division by zero
+                if std > 0:
+                    z_scores = (numeric_series - mean) / std
+                    # Replace outliers with median (using non-NaN values for median)
+                    median_val = non_null_values.median()
+                    df_clean.loc[z_scores.abs() > 3, col] = median_val
+
     return df_clean
