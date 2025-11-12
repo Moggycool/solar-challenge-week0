@@ -76,27 +76,28 @@ def fill_missing_values(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     return df_filled
 
 
-def remove_outliers_zscore(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+def remove_outliers_iqr(df: pd.DataFrame, cols: list[str], factor: float = 1.5) -> pd.DataFrame:
     """
-    Replace outliers (|Z| > 3) with median (future-proof, avoids inplace warnings).
+    Replace outliers using IQR method instead of Z-score.
+    More robust for extreme outliers.
     """
     df_clean = df.copy()
     for col in cols:
         if col in df_clean.columns:
-            # Convert to numeric and drop NaN for Z-score calculation
             numeric_series = pd.to_numeric(df_clean[col], errors='coerce')
-
-            # Calculate mean and std only on non-NaN values
             non_null_values = numeric_series.dropna()
-            if len(non_null_values) > 0:  # Only process if we have valid values
-                mean = non_null_values.mean()
-                std = non_null_values.std()
 
-                # Avoid division by zero
-                if std > 0:
-                    z_scores = (numeric_series - mean) / std
-                    # Replace outliers with median (using non-NaN values for median)
-                    median_val = non_null_values.median()
-                    df_clean.loc[z_scores.abs() > 3, col] = median_val
+            if len(non_null_values) > 0:
+                q1 = non_null_values.quantile(0.25)
+                q3 = non_null_values.quantile(0.75)
+                iqr = q3 - q1
+                lower_bound = q1 - factor * iqr
+                upper_bound = q3 + factor * iqr
+
+                median_val = non_null_values.median()
+                # Replace values outside the bounds with median
+                outlier_mask = (numeric_series < lower_bound) | (
+                    numeric_series > upper_bound)
+                df_clean.loc[outlier_mask, col] = median_val
 
     return df_clean
