@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "solar-challenge-week0"
+version = "0.1.0"
+description = "Solar Challenge Week 0 Project"
+authors = [
+    {name = "Your Name", email = "your-email@example.com"}
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "black",
+    "flake8"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
