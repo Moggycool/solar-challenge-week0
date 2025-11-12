@@ -25,27 +25,25 @@ def sample_cleaning_df() -> pd.DataFrame:  # pylint: disable=redefined-outer-nam
     })
 
 
-# CHANGED: removed "_fixture"
 def test_fill_missing_values_numeric(sample_cleaning_df):
     """Test filling missing numeric values."""
     # Test with single column
     df_filled = fill_missing_values(sample_cleaning_df.copy(), ["ghi"])
     assert df_filled["ghi"].isna().sum() == 0
-    # Should be filled with median (2.0) of [1, 3]
-    assert df_filled.loc[1, "ghi"] == 2.0
+    # Should be filled with median (3.0) of [1, 3, 1000] - includes the outlier!
+    assert df_filled.loc[1, "ghi"] == 3.0  # Changed from 2.0 to 3.0
 
 
-# CHANGED: removed "_fixture"
 def test_fill_missing_values_multiple_columns(sample_cleaning_df):
     """Test filling missing values in multiple columns."""
     df_filled = fill_missing_values(sample_cleaning_df.copy(), ["ghi", "dni"])
     assert df_filled["ghi"].isna().sum() == 0
     assert df_filled["dni"].isna().sum() == 0
-    assert df_filled.loc[1, "ghi"] == 2.0  # median of [1, 3]
+    # median of [1, 3, 1000] - includes outlier
+    assert df_filled.loc[1, "ghi"] == 3.0
     assert df_filled.loc[0, "dni"] == 6.0  # median of [5, 6, 7]
 
 
-# CHANGED: removed "_fixture"
 def test_remove_outliers_zscore(sample_cleaning_df):
     """Test removing outliers using Z-score method."""
     df_clean = remove_outliers_zscore(sample_cleaning_df.copy(), "ghi")
