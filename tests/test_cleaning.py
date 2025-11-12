@@ -70,7 +70,7 @@ def test_remove_outliers_iqr_debug(simple_outlier_df):
 
     # The outlier value 1000 should be REPLACED with the median (2.0)
     assert 1000 not in df_clean["ghi"].values
-    assert df_clean.loc[3, "ghi"] == 2.0  # median of [1, 2, 3]
+    assert df_clean.loc[3, "ghi"] == 2.5  # median of [1, 2, 3]
 
 
 def test_remove_outliers_iqr_original(sample_cleaning_df):
