@@ -25,6 +25,7 @@ def sample_cleaning_df() -> pd.DataFrame:  # pylint: disable=redefined-outer-nam
     })
 
 
+# CHANGED: removed "_fixture"
 def test_fill_missing_values_numeric(sample_cleaning_df):
     """Test filling missing numeric values."""
     # Test with single column
@@ -34,6 +35,7 @@ def test_fill_missing_values_numeric(sample_cleaning_df):
     assert df_filled.loc[1, "ghi"] == 2.0
 
 
+# CHANGED: removed "_fixture"
 def test_fill_missing_values_multiple_columns(sample_cleaning_df):
     """Test filling missing values in multiple columns."""
     df_filled = fill_missing_values(sample_cleaning_df.copy(), ["ghi", "dni"])
@@ -43,6 +45,7 @@ def test_fill_missing_values_multiple_columns(sample_cleaning_df):
     assert df_filled.loc[0, "dni"] == 6.0  # median of [5, 6, 7]
 
 
+# CHANGED: removed "_fixture"
 def test_remove_outliers_zscore(sample_cleaning_df):
     """Test removing outliers using Z-score method."""
     df_clean = remove_outliers_zscore(sample_cleaning_df.copy(), "ghi")
