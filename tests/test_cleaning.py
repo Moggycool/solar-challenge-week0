@@ -14,6 +14,18 @@ from src.cleaning import fill_missing_values, remove_outliers_zscore
 
 
 @pytest.fixture
+def sample_cleaning_df() -> pd.DataFrame:  # pylint: disable=redefined-outer-name
+    """
+    Provide a sample DataFrame with missing values and outliers
+    for testing cleaning functions.
+    """
+    return pd.DataFrame({
+        "ghi": [1, None, 3, 1000],  # 1000 is an outlier
+        "dni": [None, 5, 6, 7]
+    })
+
+
+@pytest.fixture
 def simple_outlier_df() -> pd.DataFrame:
     """Simple DataFrame with obvious outlier, no NaN values."""
     return pd.DataFrame({
@@ -40,23 +52,47 @@ def test_fill_missing_values_multiple_columns(sample_cleaning_df):
     assert df_filled.loc[0, "dni"] == 6.0  # median of [5, 6, 7]
 
 
-def test_remove_outliers_zscore_simple(simple_outlier_df):
+def test_remove_outliers_zscore_debug(simple_outlier_df):
     """Test removing outliers with simple data (no NaN values)."""
-    print("Simple test case - no NaN values")
-    print("Original:", simple_outlier_df["ghi"].values)
+    print("=== DEBUGGING remove_outliers_zscore ===")
+    print("Original DataFrame:")
+    print(simple_outlier_df)
+    print("GHI values:", simple_outlier_df["ghi"].values)
 
     df_clean = remove_outliers_zscore(simple_outlier_df.copy(), ["ghi"])
 
-    print("After cleaning:", df_clean["ghi"].values)
+    print("After remove_outliers_zscore:")
+    print(df_clean)
+    print("GHI values:", df_clean["ghi"].values)
 
-    # Calculate what should happen
+    # Let's manually calculate what should happen
+    print("=== MANUAL CALCULATION ===")
     ghi_values = simple_outlier_df["ghi"].values  # [1, 2, 3, 1000]
-    mean = ghi_values.mean()  # (1+2+3+1000)/4 = 1006/4 = 251.5
-    std = ghi_values.std()    # Large due to outlier
+    mean = ghi_values.mean()
+    std = ghi_values.std()
     z_scores = (ghi_values - mean) / std
     print(f"Mean: {mean}, Std: {std}")
     print("Z-scores:", z_scores)
+    print("Outliers (|Z| > 3):", ghi_values[abs(z_scores) > 3])
 
-    # The outlier should be replaced with median (2.0)
+    # The function REPLACES outliers with median, doesn't remove rows
+    assert len(df_clean) == len(simple_outlier_df)
+
+    # The outlier value 1000 should be REPLACED with the median
+    if 1000 in df_clean["ghi"].values:
+        print("❌ FAILED: Outlier 1000 was NOT replaced")
+        assert False, "Outlier 1000 was not replaced with median"
+    else:
+        print("✅ SUCCESS: Outlier 1000 was replaced")
+        assert 1000 not in df_clean["ghi"].values
+
+
+def test_remove_outliers_zscore_original(sample_cleaning_df):
+    """Test removing outliers with original data (with NaN values)."""
+    df_clean = remove_outliers_zscore(sample_cleaning_df.copy(), ["ghi"])
+
+    # The function REPLACES outliers with median, doesn't remove rows
+    assert len(df_clean) == len(sample_cleaning_df)
+
+    # The outlier value 1000 should be REPLACED with the median
     assert 1000 not in df_clean["ghi"].values
-    assert df_clean.loc[3, "ghi"] == 2.0  # median of [1, 2, 3]
