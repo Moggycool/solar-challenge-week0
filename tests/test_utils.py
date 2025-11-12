@@ -10,9 +10,11 @@ import pandas as pd
 import pytest
 from src.cleaning import fill_missing_values, remove_outliers_zscore
 
+# pylint: disable=redefined-outer-name
+
 
 @pytest.fixture
-def sample_df_fixture() -> pd.DataFrame:
+def sample_fixture() -> pd.DataFrame:  # pylint: disable=redefined-outer-name
     """
     Provide a sample DataFrame with missing values and outliers
     for testing cleaning functions.
@@ -23,24 +25,24 @@ def sample_df_fixture() -> pd.DataFrame:
     })
 
 
-def test_fill_missing_values(sample_df_fixture: pd.DataFrame) -> None:
+def test_fill_missing_values(sample_fixture: pd.DataFrame) -> None:
     """
     Test that fill_missing_values correctly fills NaNs with the median
     for numeric columns in a DataFrame.
     """
-    df_clean = fill_missing_values(sample_df_fixture, ["ghi", "dni"])
+    df_clean = fill_missing_values(sample_fixture, ["ghi", "dni"])
     # Check no missing values remain
     assert df_clean["ghi"].isna().sum() == 0
     assert df_clean["dni"].isna().sum() == 0
 
 
-def test_remove_outliers_zscore(sample_df_fixture: pd.DataFrame) -> None:
+def test_remove_outliers_zscore(sample_fixture: pd.DataFrame) -> None:
     """
     Test that remove_outliers_zscore replaces extreme Z-score values
     with the column median.
     """
-    df_clean = remove_outliers_zscore(sample_df_fixture, ["ghi", "dni"])
+    df_clean = remove_outliers_zscore(sample_fixture, ["ghi", "dni"])
     # 1000 in 'ghi' should be replaced by median
-    median_ghi = sample_df_fixture["ghi"].median()
+    median_ghi = sample_fixture["ghi"].median()
     assert df_clean["ghi"].max() <= median_ghi + 3 * df_clean["ghi"].std() \
         or df_clean["ghi"].max() == median_ghi
