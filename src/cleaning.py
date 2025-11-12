@@ -1,7 +1,7 @@
 """
 cleaning.py
 ------------
-Module for cleaning and preprocessing solar datasets.
+Module for cleaning and preprocessing solar datasets. hh
 """
 
 import pandas as pd
