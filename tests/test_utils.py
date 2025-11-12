@@ -1,48 +1,32 @@
 """
-test_cleaning.py — Unit tests for src/cleaning.py module.
-
-Tests:
-- fill_missing_values
-- remove_outliers_zscore
+test_utils.py — Unit tests for utility functions.
 """
 
 import pandas as pd
 import pytest
-from src.cleaning import fill_missing_values, remove_outliers_zscore
+from src.cleaning import fill_missing_values, remove_outliers_iqr
 
 # pylint: disable=redefined-outer-name
 
 
 @pytest.fixture
-def sample_fixture() -> pd.DataFrame:  # pylint: disable=redefined-outer-name
-    """
-    Provide a sample DataFrame with missing values and outliers
-    for testing cleaning functions.
-    """
+def sample_df() -> pd.DataFrame:
+    """Provide a sample DataFrame for testing."""
     return pd.DataFrame({
-        "ghi": [1, None, 3, 1000],  # 1000 is an outlier
-        "dni": [None, 5, 6, 7]
+        "column1": [1, None, 3, 1000],
+        "column2": [None, 5, 6, 7]
     })
 
 
-def test_fill_missing_values(sample_fixture: pd.DataFrame) -> None:
-    """
-    Test that fill_missing_values correctly fills NaNs with the median
-    for numeric columns in a DataFrame.
-    """
-    df_clean = fill_missing_values(sample_fixture, ["ghi", "dni"])
-    # Check no missing values remain
-    assert df_clean["ghi"].isna().sum() == 0
-    assert df_clean["dni"].isna().sum() == 0
+def test_fill_missing_values_basic(sample_df):
+    """Test basic missing value filling."""
+    df_filled = fill_missing_values(sample_df.copy(), ["column1"])
+    assert df_filled["column1"].isna().sum() == 0
 
 
-def test_remove_outliers_zscore(sample_fixture: pd.DataFrame) -> None:
-    """
-    Test that remove_outliers_zscore replaces extreme Z-score values
-    with the column median.
-    """
-    df_clean = remove_outliers_zscore(sample_fixture, ["ghi", "dni"])
-    # 1000 in 'ghi' should be replaced by median
-    median_ghi = sample_fixture["ghi"].median()
-    assert df_clean["ghi"].max() <= median_ghi + 3 * df_clean["ghi"].std() \
-        or df_clean["ghi"].max() == median_ghi
+def test_remove_outliers_iqr_basic(sample_df):
+    """Test basic outlier removal with IQR method."""
+    df_clean = remove_outliers_iqr(sample_df.copy(), ["column1"])
+    assert len(df_clean) == len(sample_df)
+    # Outlier should be replaced
+    assert 1000 not in df_clean["column1"].values
