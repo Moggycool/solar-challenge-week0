@@ -1,42 +1,66 @@
-# solar-challenge-week0
-solar-challenge-week0-assignment-repo
-## Steps to reproduce the environment
-1. **Create a GitHub repository**  
-   - Name it `solar-challenge-week0`.
+# 🌞 Solar Challenge Week 0 — Task 1: Git & Environment Setup
 
-2. **Clone the repository locally**  
-   - Open **Command Prompt (CMD)** or terminal.  
-   - Run:
-     ```bash
-     git clone https://github.com/<your-username>/solar-challenge-week0.git
-     ```
-   - Replace `<your-username>` with your GitHub username.
-
-3. **Set up a Python virtual environment**  
-   - Open the **VS Code terminal** in the cloned folder.  
-   - Create a virtual environment named `Myenv`:
-     ```bash
-     python -m venv Myenv
-     ```
-   - Activate the virtual environment:
-     - **Windows (CMD/PowerShell):**
-       ```bash
-       Myenv\Scripts\activate
-       ```
-     - **Mac/Linux:**
-       ```bash
-       source Myenv/bin/activate
-       ```
-
-4. **Verify the environment is active**  
-   - You should see `(Myenv)` at the beginning of your terminal prompt.
+## 🎯 Objective
+Get everyone comfortable with **version control** and **environment setup** before working with data.
 
 ---
 
-## Branching & Commits
+## 🧩 Task Overview
 
-1. **Create a new branch** for setup tasks:
-   ```bash
-   git checkout -b setup-task
+### 1. Initialize Repository
+- Create a new GitHub repository named **`solar-challenge-week0`**.
+- Clone it locally:
+  ```bash
+  git clone https://github.com/<your-username>/solar-challenge-week0.git
+  cd solar-challenge-week0
 
+# 🌞 Task 2: Data Profiling, Cleaning & Exploratory Data Analysis (EDA)
+
+## 🎯 Objective
+The goal of this task is to **profile, clean, and explore** each country's solar dataset (Benin, Sierra Leone, and Togo) to ensure high-quality, consistent data ready for cross-country comparison and regional solar potential ranking.
+
+---
+
+## 🧠 Overview
+Each country’s dataset is analyzed and cleaned in its own branch and notebook:
+- **Branch name format:** `eda-<country>` (e.g., `eda-benin`)
+- **Notebook name format:** `<country>_eda.ipynb`  
+- **Cleaned dataset saved as:** `data/<country>_clean.csv`
+
+All cleaned data files are **excluded from version control** by adding `data/` to `.gitignore`.
+
+---
+
+## 🧹 Data Profiling & Cleaning Steps
+
+### 1. **Summary Statistics & Missing-Value Report**
+- Generated descriptive statistics using:
+  ```python
+  df.describe()
+  df.isna().sum()
+
+
+# 🌍 Solar Challenge Week 0 — Task 3: Cross-Country Comparison
+
+## 🎯 Objective
+Synthesize the **cleaned solar datasets** from **Benin**, **Sierra Leone**, and **Togo** to identify **relative solar potential** and highlight key differences across countries.
+
+**Branch:** `compare-countries`  
+**Notebook:** `compare_countries.ipynb`
+
+---
+
+## 🧠 Overview
+This task focuses on integrating the cleaned datasets from multiple countries and performing comparative analysis of solar metrics such as:
+
+- **GHI** (Global Horizontal Irradiance)  
+- **DNI** (Direct Normal Irradiance)  
+- **DHI** (Diffuse Horizontal Irradiance)
+
+Through **visualizations**, **statistical testing**, and **summary tables**, the goal is to reveal which country shows the strongest potential for solar energy development.
+
+---
+
+## 📂 Input Data
+All input files must exist under the `data/` directory:
 
