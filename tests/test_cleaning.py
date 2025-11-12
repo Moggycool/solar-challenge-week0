@@ -30,8 +30,8 @@ def test_fill_missing_values_numeric(sample_cleaning_df):
     # Test with single column
     df_filled = fill_missing_values(sample_cleaning_df.copy(), ["ghi"])
     assert df_filled["ghi"].isna().sum() == 0
-    # Should be filled with median (3.0) of [1, 3, 1000] - includes the outlier!
-    assert df_filled.loc[1, "ghi"] == 3.0  # Changed from 2.0 to 3.0
+    # Should be filled with median (3.0) of [1, 3, 1000]
+    assert df_filled.loc[1, "ghi"] == 3.0
 
 
 def test_fill_missing_values_multiple_columns(sample_cleaning_df):
@@ -39,17 +39,24 @@ def test_fill_missing_values_multiple_columns(sample_cleaning_df):
     df_filled = fill_missing_values(sample_cleaning_df.copy(), ["ghi", "dni"])
     assert df_filled["ghi"].isna().sum() == 0
     assert df_filled["dni"].isna().sum() == 0
-    # median of [1, 3, 1000] - includes outlier
-    assert df_filled.loc[1, "ghi"] == 3.0
+    assert df_filled.loc[1, "ghi"] == 3.0  # median of [1, 3, 1000]
     assert df_filled.loc[0, "dni"] == 6.0  # median of [5, 6, 7]
 
 
 def test_remove_outliers_zscore(sample_cleaning_df):
     """Test removing outliers using Z-score method."""
-    df_clean = remove_outliers_zscore(sample_cleaning_df.copy(), "ghi")
-    # The row with ghi=1000 should be removed or the value replaced
-    assert len(df_clean) <= len(sample_cleaning_df)
-    # The outlier value 1000 should not be present in the cleaned data
+    df_clean = remove_outliers_zscore(sample_cleaning_df.copy(), [
+                                      "ghi"])  # Fixed: use list
+
+    # The function REPLACES outliers with median, doesn't remove rows
+    assert len(df_clean) == len(sample_cleaning_df)
+
+    # The outlier value 1000 should be REPLACED with the median
     assert 1000 not in df_clean["ghi"].values
-    # Additional assertion to ensure the function actually did something
-    assert df_clean["ghi"].max() < 1000
+
+    # The outlier position should now have the median value (3.0)
+    assert df_clean.loc[3, "ghi"] == 3.0
+
+    # All other values should remain unchanged
+    assert df_clean.loc[0, "ghi"] == 1.0
+    assert df_clean.loc[2, "ghi"] == 3.0
